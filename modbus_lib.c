@@ -8,6 +8,8 @@
 
 #include "modbus_lib_types.h"
 #include "modbus_lib.h"
+#include "port.h"
+#include "modbus_crc.h"
 
 uint8_t g_modbus_lib_received_telegram[MODBUS_LIB_MAX_BUFFER]; 
 uint16_t g_modbus_lib_received_length = 0; 
@@ -21,5 +23,7 @@ void modbus_lib_append_data(uint8_t byte){
 }
 
 void modbus_lib_end_of_telegram(){
+    volatile uint16_t x = usMBCRC16(g_modbus_lib_received_telegram, g_modbus_lib_received_length-2);
     g_modbus_lib_received_length = 0; // debugger: p/x *g_modbus_lib_received_telegram@g_modbus_lib_received_length
+    (void) 0; // debugger 
 }
