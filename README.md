@@ -1,3 +1,7 @@
+# Description 
+
+Easy to use/port Modbus RTU slave library, written microcontrollers in mind. 
+
 # Usage 
 
 1. Include the header file: 
@@ -80,7 +84,7 @@ void USART2_DataHandler(void)
 ```c
 void USART2_IdleHandler(void)
 {
-    modbus_lib_end_of_telegram()
+    modbus_lib_end_of_telegram();
 }
 ```
 
@@ -88,26 +92,22 @@ void USART2_IdleHandler(void)
 
 ```c
 int modbus_lib_transport_write(uint8_t* buffer, uint16_t length){
-    HAL_UART_Transmit(&huart2, (uint8_t*) buffer, length, 1000);
+    HAL_UART_Transmit(&huart2, buffer, length, 1000);
     return 0; 
 }
 ```
 
-3. Make Modbus slave configuration: 
+3. Make Modbus slave configuration and initialize: 
 
 ```c
 ModbusConfig_t modbus_cfg = {
     .address = 1
-    }; 
+}; 
+
+modbus_lib_init(&modbus_cfg);
 ```
 
-4. Initialize:
-
-```c
-modbus_lib_init(modbus_cfg);
-```
-
-5. Debug: 
+4. Debug: 
 
 * Verify that `uint8_t g_modbus_lib_received_telegram[]` is filled with received telegram. 
 * Verify that `uint8_t g_modbus_lib_received_length` has correct value. 
