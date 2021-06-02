@@ -4,13 +4,7 @@ Easy to use/port Modbus RTU slave library, written microcontrollers in mind.
 
 # Usage 
 
-1. Include the header file: 
-
-```c
-#include "modbus_lib.h"
-```
-
-Include the header and source file paths within your Makefile (or your IDE):
+1. Include the header and source file paths within your toolchain (Makefile or your IDE):
 
 ```Makefile
 C_SOURCES =  \
@@ -20,10 +14,16 @@ C_SOURCES =  \
 
 C_INCLUDES =  \
     ... \
-    modbus_lib
+    -Imodbus_lib
 ```
 
-2. Implement the following functions in your application: 
+2. Include the header file within your `main.c`: 
+
+```c
+#include "modbus_lib.h"
+```
+
+3. Implement the following functions in your application: 
 
 * Read handler:
 
@@ -70,7 +70,7 @@ uint16_t modbus_lib_write_handler(uint16_t la, uint16_t value){
 * Place the data receive function inside your incoming stream:
 
 ```c
-void USART2_DataHandler(void)
+void USART2_dataHandler(void)
 {
     char buff; 
     HAL_UART_Receive(&huart2, (uint8_t *)&buff, 1, 400);
@@ -82,7 +82,7 @@ void USART2_DataHandler(void)
 * Trigger the end of telegram after a timeout: 
 
 ```c
-void USART2_IdleHandler(void)
+void USART2_idleHandler(void)
 {
     modbus_lib_end_of_telegram();
 }
@@ -97,7 +97,7 @@ int modbus_lib_transport_write(uint8_t* buffer, uint16_t length){
 }
 ```
 
-3. Make Modbus slave configuration and initialize: 
+4. Make Modbus slave configuration and initialize in your `main()` function: 
 
 ```c
 ModbusConfig_t modbus_cfg = {
@@ -107,12 +107,8 @@ ModbusConfig_t modbus_cfg = {
 modbus_lib_init(&modbus_cfg);
 ```
 
-4. Debug: 
+5. Debug: 
 
 * Verify that `uint8_t g_modbus_lib_received_telegram[]` is filled with received telegram. 
 * Verify that `uint8_t g_modbus_lib_received_length` has correct value. 
-* Examine `uint8_t outgoing_telegram[]` contents for outgoing telegram (use `uint16_t oindex` for length).
-
-# Example Project 
-
-Example project written for STM32F4 Discovery board: https://github.com/ceremcem/modbus_example
+* Examine `uint8_t outgoing_telegram[]` contents for outgoing telegram (use `uint16_t oindex` for length) inside `modbus_lib.c`.
