@@ -81,3 +81,4 @@ extern void modbus_lib_end_of_telegram(void);
 extern uint16_t modbus_lib_send_error(int error_code);
 extern int modbus_lib_transport_write(uint8_t* buffer, uint16_t length);
 extern uint16_t modbus_lib_read_handler(uint16_t la);
+extern uint16_t modbus_lib_write_handler(uint16_t la, uint16_t value);

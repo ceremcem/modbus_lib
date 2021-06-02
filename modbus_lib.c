@@ -6,8 +6,12 @@
  *      https://www.modbustools.com/modbus.html
  * 
  * Example telegrams: 
- *      Read holding registers: 01039C410002BA4F (read 2 registers starting from 40001)
- *      Read holding registers: 01039C4100043A4D (read 4 registers starting from 40001)
+ *      Read holding registers: 010300000002c40b (read 2 registers starting from 40001)
+ *      Read holding registers: 0103000000044409 (read 4 registers starting from 40001)
+ * 
+ *      Write single register: 01060000007bc9e9 (write "123" to register 40001)
+ * 
+ *      Write multiple registers: 01100000000204007b0237c300
  * 
  *******************************************************/
 
@@ -31,6 +35,8 @@ void modbus_lib_append_data(uint8_t byte){
 }
 
 void modbus_lib_end_of_telegram(){
+    0; // debugger: p/x *g_modbus_lib_received_telegram@g_modbus_lib_received_length
+
     // Check length 
     if (g_modbus_lib_received_length < MODBUS_LIB_MIN_TELEGRAM_SIZE){
         return modbus_lib_send_error(MBUS_RESPONSE_NONE);
@@ -56,7 +62,7 @@ void modbus_lib_end_of_telegram(){
 
     outgoing_telegram[oindex++] = config->address; 
 
-    volatile MbDataField start_addr, count, res;
+    volatile MbDataField start_addr, count, res, addr, value;
 
     switch (g_modbus_lib_received_telegram[1]){
         case MB_FUNC_READ_HOLDING_REGISTERS: 
@@ -65,8 +71,8 @@ void modbus_lib_end_of_telegram(){
             count.bytes.high = g_modbus_lib_received_telegram[4];
             count.bytes.low = g_modbus_lib_received_telegram[5];
 
-            outgoing_telegram[oindex++] = MB_FUNC_READ_HOLDING_REGISTERS;  // function code 
-            outgoing_telegram[oindex++] = count.value * 2;                 // byte count 
+            outgoing_telegram[oindex++] = g_modbus_lib_received_telegram[1];    // function code 
+            outgoing_telegram[oindex++] = count.value * 2;                      // byte count 
 
             for (uint16_t i=0; i < count.value; i++){  
                 res.value = modbus_lib_read_handler(start_addr.value + i + MB_ADDRESS_HOLDING_REGISTER_OFFSET);
@@ -84,9 +90,28 @@ void modbus_lib_end_of_telegram(){
 
             modbus_lib_transport_write(outgoing_telegram, oindex);
             break;
+        case MB_FUNC_WRITE_REGISTER:
+            addr.bytes.high = g_modbus_lib_received_telegram[2]; 
+            addr.bytes.low = g_modbus_lib_received_telegram[3]; 
+            value.bytes.high = g_modbus_lib_received_telegram[4];
+            value.bytes.low = g_modbus_lib_received_telegram[5];
+
+            if (modbus_lib_write_handler(addr.value + MB_ADDRESS_HOLDING_REGISTER_OFFSET, value.value) == 0){
+                // success 
+                // normal response is the echo of received telegram 
+                modbus_lib_transport_write(g_modbus_lib_received_telegram, g_modbus_lib_received_length);
+            } else {
+                // error
+                g_modbus_lib_exception_occurred = 0;  
+            }
+            break;
+        default:
+            // unimplemented 
+            modbus_lib_send_error(MBUS_RESPONSE_SERVICE_DEVICE_FAILURE);
+            g_modbus_lib_exception_occurred = 0; 
     }
 
-    g_modbus_lib_received_length = 0; //// debugger: p/x *g_modbus_lib_received_telegram@g_modbus_lib_received_length
+    g_modbus_lib_received_length = 0; 
 }
 
 #define MB_EXCEPTION_LENGTH 5 
