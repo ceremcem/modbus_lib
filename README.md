@@ -15,7 +15,8 @@ Include the header and source file paths within your Makefile (or your IDE):
 ```Makefile
 C_SOURCES =  \
     ... \
-    modbus_lib/modbus_lib.c
+    modbus_lib/modbus_lib.c \
+    modbus_lib/modbus_crc.c
 
 C_INCLUDES =  \
     ... \
@@ -39,10 +40,9 @@ uint16_t modbus_lib_read_handler(uint16_t la){ // la: logical_address
             } else {
                 return some_other_value;
             }
+        default:
+            return modbus_lib_send_error(MBUS_RESPONSE_ILLEGAL_DATA_ADDRESS); 
     }
-
-    // else, return error
-    return modbus_lib_send_error(MBUS_RESPONSE_ILLEGAL_DATA_ADDRESS);
 }
 
 ```
@@ -111,4 +111,4 @@ modbus_lib_init(&modbus_cfg);
 
 * Verify that `uint8_t g_modbus_lib_received_telegram[]` is filled with received telegram. 
 * Verify that `uint8_t g_modbus_lib_received_length` has correct value. 
-* Examine `uint8_t g_modbus_lib_outgoing_telegram[]` contents (use `uint8_t g_modbus_lib_outgoing_telegram_length`).
+* Examine `uint8_t outgoing_telegram[]` contents for outgoing telegram (use `uint16_t oindex` for length).
