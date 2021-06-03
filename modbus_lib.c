@@ -35,11 +35,12 @@ void modbus_lib_append_data(uint8_t byte){
 }
 
 void modbus_lib_end_of_telegram(){
-    0; // debugger: p/x *g_modbus_lib_received_telegram@g_modbus_lib_received_length
+    (void) 0; // debugger: p/x *g_modbus_lib_received_telegram@g_modbus_lib_received_length
 
     // Check length 
     if (g_modbus_lib_received_length < MODBUS_LIB_MIN_TELEGRAM_SIZE){
-        return modbus_lib_send_error(MBUS_RESPONSE_NONE);
+        modbus_lib_send_error(MBUS_RESPONSE_NONE);
+        return;
     }
 
     // Check CRC
@@ -47,12 +48,14 @@ void modbus_lib_end_of_telegram(){
     UCHAR got_low = g_modbus_lib_received_telegram[g_modbus_lib_received_length-2];
     UCHAR got_high = g_modbus_lib_received_telegram[g_modbus_lib_received_length-1];
     if ((expected.bytes.low != got_low) || (expected.bytes.high != got_high)){
-        return modbus_lib_send_error(MBUS_RESPONSE_NONE);
+        modbus_lib_send_error(MBUS_RESPONSE_NONE);
+        return;
     } 
 
     // Check address 
     if (config->address != g_modbus_lib_received_telegram[0]){
-        return modbus_lib_send_error(MBUS_RESPONSE_NONE);
+        modbus_lib_send_error(MBUS_RESPONSE_NONE);
+        return;
     }
 
     // Telegram is okay, call the relevant handler 
@@ -109,6 +112,7 @@ void modbus_lib_end_of_telegram(){
             // unimplemented 
             modbus_lib_send_error(MBUS_RESPONSE_SERVICE_DEVICE_FAILURE);
             g_modbus_lib_exception_occurred = 0; 
+            return; 
     }
 
     g_modbus_lib_received_length = 0; 
