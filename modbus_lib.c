@@ -31,7 +31,9 @@ int modbus_lib_init(ModbusConfig_t* cfg){
 }
 
 void modbus_lib_append_data(uint8_t byte){
-    g_modbus_lib_received_telegram[g_modbus_lib_received_length++] = byte;
+    if (g_modbus_lib_received_length < MODBUS_LIB_MAX_BUFFER){
+        g_modbus_lib_received_telegram[g_modbus_lib_received_length++] = byte;
+    }
 }
 
 void modbus_lib_end_of_telegram(){
