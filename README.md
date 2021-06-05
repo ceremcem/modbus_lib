@@ -72,10 +72,9 @@ uint16_t modbus_lib_write_handler(uint16_t la, uint16_t value){
 ```c
 void USART2_dataHandler(void)
 {
-    char buff; 
-    HAL_UART_Receive(&huart2, (uint8_t *)&buff, 1, 400);
-    modbus_lib_append_data(buff); // append byte-by-byte
-    ...
+  uint8_t buff[1]; 
+  HAL_UART_Receive (&huart2, buff, 1, 400);  
+  modbus_lib_append_data(buff[0]); // append byte-by-byte
 }
 ```
 
