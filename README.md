@@ -111,3 +111,7 @@ modbus_lib_init(&modbus_cfg);
 * Verify that `uint8_t g_modbus_lib_received_telegram[]` is filled with received telegram. 
 * Verify that `uint8_t g_modbus_lib_received_length` has correct value. 
 * Examine `uint8_t outgoing_telegram[]` contents for outgoing telegram (use `uint16_t oindex` for length) inside `modbus_lib.c`.
+
+# Example 
+
+STM32F407 Discovery board example is available [here](https://github.com/ceremcem/modbus_example). 
