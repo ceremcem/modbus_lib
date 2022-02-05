@@ -127,7 +127,7 @@ uint16_t modbus_lib_send_error(int error_code){
         g_modbus_lib_exception_occurred = 1; 
         uint8_t res[MB_EXCEPTION_LENGTH] = {
             config->address, 
-            g_modbus_lib_received_telegram[1], 
+            g_modbus_lib_received_telegram[1] | 0x80, 
             error_code
         };
         CRC_t crc = usMBCRC16(res, MB_EXCEPTION_LENGTH - 2);
