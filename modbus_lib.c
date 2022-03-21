@@ -4,6 +4,7 @@
  * 
  *      http://www.mayor.de/lian98/doc.en/html/u_mbusser-rtu_struct.htm
  *      https://www.modbustools.com/modbus.html
+ *		https://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf
  * 
  * Example telegrams: 
  *      Read holding registers: 010300000002c40b (read 2 registers starting from 40001)
@@ -64,7 +65,7 @@ void modbus_lib_end_of_telegram(){
     // -------------------------------------------
     uint8_t outgoing_telegram[MODBUS_LIB_MAX_BUFFER];
     uint16_t oindex = 0; 
-
+	uint16_t errorCode = 0;
     outgoing_telegram[oindex++] = config->address; 
 
     volatile MbDataField start_addr, count, res, addr, value;
@@ -101,18 +102,18 @@ void modbus_lib_end_of_telegram(){
             value.bytes.high = g_modbus_lib_received_telegram[4];
             value.bytes.low = g_modbus_lib_received_telegram[5];
 
-            if (modbus_lib_write_handler(addr.value + MB_ADDRESS_HOLDING_REGISTER_OFFSET, value.value) == 0){
-                // success 
-                // normal response is the echo of received telegram 
-                modbus_lib_transport_write(g_modbus_lib_received_telegram, g_modbus_lib_received_length);
-            } else {
-                // error
-                g_modbus_lib_exception_occurred = 0;  
-            }
+			errorCode = modbus_lib_write_handler(addr.value + MB_ADDRESS_HOLDING_REGISTER_OFFSET, value.value);
+			if (errorCode == MBUS_RESPONSE_OK){
+				// success
+				// normal response is the echo of received telegram
+				modbus_lib_transport_write(g_modbus_lib_received_telegram, g_modbus_lib_received_length);
+			} else {
+				modbus_lib_send_error(errorCode);
+			}
             break;
         default:
             // unimplemented 
-            modbus_lib_send_error(MBUS_RESPONSE_SERVICE_DEVICE_FAILURE);
+            modbus_lib_send_error(MBUS_RESPONSE_ILLEGAL_FUNCTION);
             g_modbus_lib_exception_occurred = 0; 
             return; 
     }

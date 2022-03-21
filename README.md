@@ -36,7 +36,7 @@ uint16_t modbus_lib_read_handler(uint16_t la){ // la: logical_address
             return something_else;
         case 40003: 
             if (some_error){
-                return modbus_lib_send_error(MBUS_RESPONSE_ILLEGAL_DATA_VALUE);
+                return modbus_lib_send_error(MBUS_RESPONSE_SERVICE_DEVICE_FAILURE);
             } else {
                 return some_other_value;
             }
@@ -50,22 +50,28 @@ uint16_t modbus_lib_read_handler(uint16_t la){ // la: logical_address
 * Write handler: 
 
 ```c
-uint16_t modbus_lib_write_handler(uint16_t la, uint16_t value){
+uint16_t modbus_lib_write_handler(uint16_t la, uint16_t value)
 {
     if ( la > 40000 && la <= 40013 ){
-        my_buffer_reg_4xxxx[la-40001] = value;
+		my_buffer_reg_4xxxx[la-40001] = value;
     }
+	if( la > 40013 && la < 40018){
+		if(!writeEEprom(value))
+		{
+			return 	MBUS_RESPONSE_SERVICE_DEVICE_FAILURE;
+		}
+	}
     if (la == 40018 ){
-         output = (value >> 8) | (value << 8);
+	    output = (value >> 8) | (value << 8);
     }
-        
-    if (some_error){
-        return modbus_lib_send_error(MBUS_RESPONSE_ILLEGAL_DATA_ADDRESS); 
+    
+    if (la > 40018){
+	    return MBUS_RESPONSE_ILLEGAL_DATA_ADDRESS;
     }
-    return 0; // data is successfully written
+    return MBUS_RESPONSE_OK; // data is successfully written
 }
-
 ```
+
 
 * Place the data receive function inside your incoming stream:
 
