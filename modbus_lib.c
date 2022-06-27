@@ -4,7 +4,7 @@
  * 
  *      http://www.mayor.de/lian98/doc.en/html/u_mbusser-rtu_struct.htm
  *      https://www.modbustools.com/modbus.html
- *		https://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf
+ *	    https://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf
  * 
  * Example telegrams: 
  *      Read holding registers: 010300000002c40b (read 2 registers starting from 40001)
