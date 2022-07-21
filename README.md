@@ -51,7 +51,7 @@ uint16_t modbus_lib_read_handler(uint16_t la){ // la: logical_address
 
 ```c
 uint16_t modbus_lib_write_handler(uint16_t la, uint16_t value){
-    if ( la > 40000 && la <= 40013 ){
+    if ( la >= 40001 && la <= 40013 ){
         my_buffer_reg_4xxxx[la-40001] = value;
     }
     if( la > 40013 && la < 40018){
@@ -119,3 +119,7 @@ modbus_lib_init(&modbus_cfg);
 # Example 
 
 STM32F407 Discovery board example is available [here](https://github.com/ceremcem/modbus_example). 
+
+# Address Indexes
+
+First Modbus register address is 40001.
