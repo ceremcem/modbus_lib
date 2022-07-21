@@ -38,7 +38,7 @@ void modbus_lib_append_data(uint8_t byte){
 }
 
 void modbus_lib_end_of_telegram(){
-    (void) 0; // debugger: p/x *g_modbus_lib_received_telegram@g_modbus_lib_received_length
+    (void) 0; //// debugger: p/x *g_modbus_lib_received_telegram@g_modbus_lib_received_length
 
     // Check length 
     if (g_modbus_lib_received_length < MODBUS_LIB_MIN_TELEGRAM_SIZE){
