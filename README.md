@@ -71,7 +71,7 @@ uint16_t modbus_lib_write_handler(uint16_t la, uint16_t value){
 ```
 
 
-* Place the data receive function inside your incoming stream:
+* Place the data receive function inside your incoming stream handler:
 
 ```c
 void USART2_dataHandler(void)
@@ -82,7 +82,7 @@ void USART2_dataHandler(void)
 }
 ```
 
-* Trigger the end of telegram after a timeout: 
+* Mark the end of incoming telegram after a timeout: 
 
 ```c
 void USART2_idleHandler(void)
@@ -91,7 +91,7 @@ void USART2_idleHandler(void)
 }
 ```
 
-* Implement `write` function: 
+* Implement the `modbus_lib_transport_write` function: 
 
 ```c
 int modbus_lib_transport_write(uint8_t* buffer, uint16_t length){
