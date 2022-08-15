@@ -2,6 +2,15 @@
 
 Easy to use/port Modbus RTU slave library, written microcontrollers in mind. 
 
+# Implemented Functions 
+
+* Function 03: Read Holding Registers
+* Function 06: Write Single Register
+
+Planned: 
+
+* Function 16: Write Multiple Registers
+
 # Usage 
 
 1. Include the header and source file paths within your toolchain (Makefile or your IDE):
