@@ -96,3 +96,25 @@ usMBCRC16( UCHAR * pucFrame, USHORT usLen )
     }
     return ( CRC_t ){ .bytes.high = ucCRCHi, .bytes.low = ucCRCLo };
 }
+
+
+/* Example: 
+
+  uint8_t hello[10] = {0x01, 0x10, 0x00, 0x00, 00, 01, 02, 0x12, 0x34};
+  CRC_t a;
+  a = usMBCRC16(hello, 9); // -> a.value is 10155
+
+  or: 
+
+  params[0] = 0x1001; 
+  params[1] = 0x0000; 
+  params[2] = 0x0100; 
+  params[3] = 0x1202; 
+  params[4] = 0x34; 
+  CRC_t a;
+  a = usMBCRC16(params, 9); // a.value is 10155
+
+
+  See https://crccalc.com/ for more example telegrams.
+
+*/
