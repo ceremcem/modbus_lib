@@ -31,18 +31,30 @@ int modbus_lib_init(ModbusConfig_t* cfg){
     return 0; 
 }
 
+#define MODBUS_NODE_ADDRESS_POSITION 0 
+
 void modbus_lib_append_data(uint8_t byte){
+    // Check the address field
+    // This check must be the first one for performance reasons when garbage is injected into the received telegram.
+    if (config->address != g_modbus_lib_received_telegram[MODBUS_NODE_ADDRESS_POSITION]){
+        g_modbus_lib_received_length = 0; 
+    }
+
     if (g_modbus_lib_received_length < MODBUS_LIB_MAX_BUFFER){
         g_modbus_lib_received_telegram[g_modbus_lib_received_length++] = byte;
-    }
+    }    
 }
 
 void modbus_lib_end_of_telegram(){
-    (void) 0; //// debugger: p/x *g_modbus_lib_received_telegram@g_modbus_lib_received_length
+    if (g_modbus_lib_received_length == MODBUS_LIB_MAX_BUFFER){
+        // cleanup the buffer if it's full and we are still getting "end_of_telegram" signal
+        g_modbus_lib_received_length = 0; 
+        return; 
+    }
 
     // Check length 
     if (g_modbus_lib_received_length < MODBUS_LIB_MIN_TELEGRAM_SIZE){
-        modbus_lib_send_error(MBUS_RESPONSE_NONE);
+        // check the telegram later 
         return;
     }
 
@@ -51,15 +63,10 @@ void modbus_lib_end_of_telegram(){
     UCHAR got_low = g_modbus_lib_received_telegram[g_modbus_lib_received_length-2];
     UCHAR got_high = g_modbus_lib_received_telegram[g_modbus_lib_received_length-1];
     if ((expected.bytes.low != got_low) || (expected.bytes.high != got_high)){
-        modbus_lib_send_error(MBUS_RESPONSE_NONE);
+        // CRC is erroneous, discard the telegram 
+        g_modbus_lib_received_length = 0; 
         return;
     } 
-
-    // Check address 
-    if (config->address != g_modbus_lib_received_telegram[0]){
-        modbus_lib_send_error(MBUS_RESPONSE_NONE);
-        return;
-    }
 
     // Telegram is okay, call the relevant handler 
     // -------------------------------------------
